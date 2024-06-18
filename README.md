@@ -4,11 +4,11 @@ Lek Sessions is a personalized and secure session management and storage system.
 
 ## Basic Operation
 
-1. **Key Generation**: A unique hexadecimal key (`clave_A`) is generated. A hash of this key (`clave_B`) is created, which can be shared securely.
-2. **Encryption and Storage**: `clave_A` is encrypted and stored in both a database and a session object on the server. `clave_B` is sent to the client for storage, for example, in a cookie.
-3. **Verification**: To verify a session, `clave_B` is passed from the client. The server decrypts `clave_A` and checks if the hash of `clave_A` matches `clave_B`.
+1. **Key Generation**: A unique hexadecimal key (`key_A`) is generated. A hash of this key (`key_B`) is created, which can be shared securely.
+2. **Encryption and Storage**: `key_A` is encrypted and stored in both a database and a session object on the server. `key_B` is sent to the client for storage, for example, in a cookie.
+3. **Verification**: To verify a session, `key_B` is passed from the client. The server decrypts `key_A` and checks if the hash of `key_A` matches `key_B`.
 
-This strategy ensures that even if an attacker accesses the database, they cannot derive `clave_A` from `clave_B` due to the irreversible nature of the hash.
+This strategy ensures that even if an attacker accesses the database, they cannot derive `key_A` from `key_B` due to the irreversible nature of the hash.
 
 ## Installation
 
@@ -52,7 +52,7 @@ const keyToCookie = await create('user_id'); // 'user_id' should be a unique ide
 const sessionWithExpiry = await create('user_id', 3600); // Expires in one hour
 const nonPersistentSession = await create('user_id', undefined, false); // Does not persist after server restart
 ```
-///CAMBIOOOOOO
+
 ### Confirming Sessions
 
 Verify whether a session is legitimate using the key stored in the client's cookie.
