@@ -1,4 +1,3 @@
-```
 # Lek Sessions
 
 Lek Sessions is a personalized and secure session management and storage system. It uses cryptographic techniques to protect session keys and ensures that only authorized developers can access the necessary keys for session verification.
