@@ -1,0 +1,15 @@
+{
+  "name": "lek-sessions",
+  "version": "1.0.0",
+  "description": "'session system'",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "'Gabriel Farías R'",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "sqlite-express": "^4.0.0"
+  }
+}
