@@ -1,6 +1,6 @@
 {
   "name": "lek-sessions",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "'session system'",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "lek-cryptools": "^1.0.2",
     "sqlite-express": "^4.0.0"
   }
 }

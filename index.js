@@ -1,7 +1,5 @@
-const { compare, hash, genSalt } = require('bcryptjs');
-const { randomBytes, createCipheriv, createDecipheriv, createHash } = require('crypto');
+const { cipher, decipher, encrypt, compare, getUniqueKey} = require('lek-cryptools');
 const SqliteExpress = require('sqlite-express');
-const getUniqueKey = () => randomBytes(64).toString('hex');
 const dbSession = new SqliteExpress(__dirname);
 
 dbSession.defaultOptions.set
@@ -14,57 +12,6 @@ dbSession.defaultOptions.set
     processRows : false,
     processColumns : false
 });
-
-const getKeyFromSecret = (secretKey) => {
-    try
-    {
-        return createHash('sha256').update(secretKey).digest();
-    }
-    catch(err)
-    {
-        throw new Error('error in lek-sessions when trying to encrypt the session key: ' + err.message);
-    }
-};
-
-const encrypt = (text, secretKey) =>
-{
-    try
-    {
-        const key = getKeyFromSecret(secretKey);
-        const iv = randomBytes(16);
-        const cipher = createCipheriv('aes-256-cbc', key, iv);
-        let encrypted = cipher.update(text, 'utf8', 'hex');
-        encrypted += cipher.final('hex');
-        return iv.toString('hex') + ':' + encrypted;    
-    }
-    catch(err)
-    {
-        throw new Error('error in lek-sessions when trying to encrypt the session key: ' + err.message);
-    }
-};
-
-const decrypt = (encrypted, secretKey) =>
-{
-    try
-    {
-        const key = getKeyFromSecret(secretKey);
-        const parts = encrypted.split(':');
-        const iv = Buffer.from(parts.shift(), 'hex');
-        const encryptedText = parts.join(':');
-        const decipher = createDecipheriv('aes-256-cbc', key, iv);
-        let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-        decrypted += decipher.final('utf8');
-        return decrypted;
-    }
-    catch(err)
-    {
-        if(err.message.includes('Invalid initialization vector'))
-        {
-            throw new Error('THE_STRING_FROM_COOKIE_ARE_NOT_VALID_FORMAT_LEK_SESSION_ERROR')
-        }
-        throw new Error('error in lek-sessions when trying to decrypt the session key: ' + err.message);
-    }
-};
 
 const useLekSessions = (secretManaggerKey) =>
 {
@@ -81,7 +28,6 @@ const useLekSessions = (secretManaggerKey) =>
             await dbSession.createTable();
             const rows = await dbSession.select();
             rows.forEach(({ id_user, session }) => { sessions[id_user] = session });
-            console.log(rows, sessions)
         }
         catch(err)
         {
@@ -100,10 +46,9 @@ const useLekSessions = (secretManaggerKey) =>
     {
         try
         {
-            const salt = await genSalt(10);
             const keyA = getUniqueKey();
-            const keyB = await hash(keyA, salt);
-            const keyA_Encrypted = await encrypt(keyA, secretManaggerKey);
+            const keyB = await encrypt(keyA);
+            const keyA_Encrypted = await cipher(keyA, secretManaggerKey);
             const expiresBool = max_age ? true : false;
             const thisMoment = new Date().getTime();
             const expiresInt = max_age ? thisMoment + (max_age * 1000) : 0;
@@ -124,7 +69,7 @@ const useLekSessions = (secretManaggerKey) =>
                 }
             };
 
-            return encrypt(id_user + '|' + keyB, secretManaggerKey);
+            return cipher(id_user + '|' + keyB, secretManaggerKey);
         }
         catch(err)
         {
@@ -141,14 +86,14 @@ const useLekSessions = (secretManaggerKey) =>
     {
         try
         {
-            const [id_user, keyB] = (decrypt(cookie_key, secretManaggerKey)).split('|');
+            const [id_user, keyB] = (decipher(cookie_key, secretManaggerKey)).split('|');
             if(!id_user || !keyB){
                 return false
             }
             const { keyA_Encrypted, expiresBool, expiresInt } = sessions[id_user];
             if(keyA_Encrypted)
             {
-                const keyA = decrypt(keyA_Encrypted, secretManaggerKey);
+                const keyA = decipher(keyA_Encrypted, secretManaggerKey);
                 const confirmation = await compare(keyA, keyB);
                 if(expiresBool)
                 {
@@ -170,11 +115,7 @@ const useLekSessions = (secretManaggerKey) =>
         }
         catch(err)
         {
-            if(err.message.includes('THE_STRING_FROM_COOKIE_ARE_NOT_VALID_FORMAT_LEK_SESSION_ERROR'))
-            {
-                return false;
-            };
-            throw new Error('error in lek-sessions when trying to confirm session: ' + err.message);
+            return false;
         };
     };
     return { init, create, confirm };
