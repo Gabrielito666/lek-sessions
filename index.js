@@ -27,7 +27,15 @@ const useLekSessions = (secretManaggerKey) =>
             dbSession.createDB();
             await dbSession.createTable();
             const rows = await dbSession.select();
-            rows.forEach(({ id_user, session }) => { sessions[id_user] = session });
+            rows.forEach(({ id_user, session, expiresBool, expiresInt }) =>
+            {
+                sessions[id_user] = 
+                {
+                    keyA_Encrypted : session,
+                    expiresBool,
+                    expiresInt
+                }
+            });
         }
         catch(err)
         {
