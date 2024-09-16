@@ -112,7 +112,7 @@ const useLekSessions = (secretManaggerKey) =>
                         delete sessions[id_user];
                         await dbSession.delete({ where : { id_user } });
                     }
-                    return (confirmation && isExpired) ? id_user : false;
+                    return (confirmation && !isExpired) ? id_user : false;
                 }
                 else
                 {
