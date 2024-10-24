@@ -1,4 +1,4 @@
-# Lek Sessions
+# Lek Sessions 2.0.0
 
 Lek Sessions is a personalized and secure session management and storage system. It uses cryptographic techniques to protect session keys and ensures that only authorized developers can access the necessary keys for session verification.
 
@@ -26,20 +26,18 @@ Import and set up the module in your project:
 require('dotenv').config();
 const useLekSessions = require('lek-sessions');
 const MANAGER_SECRET = process.env.MANAGER_SECRET; // Key for encrypting/decrypting sessions
-const { init, create, confirm } = useLekSessions(MANAGER_SECRET);
+
+(async()=>{
+    const { create, confirm } = await useLekSessions(MANAGER_SECRET);
+})
+
 ```
+__1.0.3 ==> 2.0.0__
+A major change between this and the previous version is that useLekSessions is now asynchronous and no longer returns an init method. it initialises itself.
 
 `MANAGER_SECRET` should be a robust key that will be used for encrypting sessions before storing them.
 
 ## System Usage
-
-### Initialization
-
-Initialize the system to load existing sessions and configure the database:
-
-```javascript
-await init(); // Call this function when starting your application
-```
 
 ### Creating Sessions
 
@@ -76,3 +74,6 @@ if (confirmation) {
 - Ensure to keep `MANAGER_SECRET` secure and out of the source code.
 - Regularly perform security testing to identify and mitigate potential vulnerabilities.
 ```
+
+__1.0.3 ==> 2.0.0__
+Cookies generated with a previous version are no longer valid. So you cannot update the package if you are already using version 1.0.3. This is due to a new internal handling of lek-cryptools. If I see interest from someone I can create a method to migrate old cookies.

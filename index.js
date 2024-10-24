@@ -13,13 +13,10 @@ dbSession.defaultOptions.set
     processColumns : false
 });
 
-const useLekSessions = (secretManaggerKey) =>
+const useLekSessions = async secretManaggerKey =>
 {
     const sessions = {};
 
-    /**
-     * initialises the system
-     */
     const init = async() =>
     {
         try
@@ -43,18 +40,19 @@ const useLekSessions = (secretManaggerKey) =>
         };
     };
 
+    await init();
     /**
      * this function receives an identifier from the user and returns a string to be inserted in the user's browser via a cookie
      * @param {string} id_user a user identifier
      * @param {number|undefined} max_age an optional parameter allowing to add a maximum age to the session. it can be a number (in seconds) or undefined.
      * @param {boolean} [persist=true] an optional boolean if you want the session to terminate or not if the sever is restarted
-     * @returns {string} <cookie_key>
+     * @returns {Promise<string>} <cookie_key>
      */
     const create = async (id_user, max_age, persist=true) =>
     {
         try
         {
-            const keyA = getUniqueKey();
+            const keyA = await getUniqueKey();
             const keyB = await encrypt(keyA);
             const keyA_Encrypted = await cipher(keyA, secretManaggerKey);
             const expiresBool = max_age ? true : false;
@@ -88,20 +86,19 @@ const useLekSessions = (secretManaggerKey) =>
     /**
      * Receives a cookie key (return from create) and confirms or denies a session
      * @param {string} cookie_key a cookie key (return from create)
-     * @returns {string|false} <confirmation>
+     * @returns {Promise<string|false>} <confirmation>
      */
-    const confirm = async (cookie_key) =>
+    const confirm = async cookie_key =>
     {
         try
         {
-            const [id_user, keyB] = (decipher(cookie_key, secretManaggerKey)).split('|');
-            if(!id_user || !keyB){
-                return false
-            }
+            const [id_user, keyB] = (await decipher(cookie_key, secretManaggerKey)).split('|');
+            if(!id_user || !keyB) return false
             const { keyA_Encrypted, expiresBool, expiresInt } = sessions[id_user];
+
             if(keyA_Encrypted)
             {
-                const keyA = decipher(keyA_Encrypted, secretManaggerKey);
+                const keyA = await decipher(keyA_Encrypted, secretManaggerKey);
                 const confirmation = await compare(keyA, keyB);
                 if(expiresBool)
                 {
@@ -126,6 +123,7 @@ const useLekSessions = (secretManaggerKey) =>
             return false;
         };
     };
-    return { init, create, confirm };
+    return { create, confirm };
 };
+
 module.exports = useLekSessions;
