@@ -1,20 +1,28 @@
 const { cipher, decipher, encrypt, compare, getUniqueKey} = require('lek-cryptools');
 const SqliteExpress = require('sqlite-express');
-const dbSession = new SqliteExpress(__dirname);
 
-dbSession.defaultOptions.set
-({
-    key : 'lek-sessions-data',
-    table : 'sessions',
-    route : 'lek-sessions-data.db',
-    columns : { id_user: 'text', session : 'text', expiresBool : 'text', expiresInt : 'integer' },
-    logQuery : false,
-    processRows : false,
-    processColumns : false
-});
-
-const useLekSessions = async secretManaggerKey =>
+/**
+ * 
+ * @param {string} secretManaggerKey A key for use to cipher sessions. Must be a secret but are not critical
+ * @param {string} [dirdata] The path for persist database 
+ * @param {*} [dbname] The name for database 
+ * @returns {object}
+ */
+const useLekSessions = async (secretManaggerKey, dirdata=__dirname, dbname="lek-sessions-data.db") =>
 {
+    const dbSession = new SqliteExpress(dirdata);
+
+    dbSession.defaultOptions.set
+    ({
+        key : 'lek-sessions-data',
+        table : 'sessions',
+        route : dbname,
+        columns : { id_user: 'text', session : 'text', expiresBool : 'text', expiresInt : 'integer' },
+        logQuery : false,
+        processRows : false,
+        processColumns : false
+    });
+
     const sessions = {};
 
     const init = async() =>

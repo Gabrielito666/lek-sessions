@@ -1,4 +1,4 @@
-# Lek Sessions 2.0.0
+# Lek Sessions 2.0.1
 
 Lek Sessions is a personalized and secure session management and storage system. It uses cryptographic techniques to protect session keys and ensures that only authorized developers can access the necessary keys for session verification.
 
@@ -23,19 +23,18 @@ npm install lek-sessions
 Import and set up the module in your project:
 
 ```javascript
-require('dotenv').config();
 const useLekSessions = require('lek-sessions');
-const MANAGER_SECRET = process.env.MANAGER_SECRET; // Key for encrypting/decrypting sessions
 
 (async()=>{
-    const { create, confirm } = await useLekSessions(MANAGER_SECRET);
+    const { create, confirm, close } = await useLekSessions('my-secret');
 })
 
 ```
 __1.0.3 ==> 2.0.0__
 A major change between this and the previous version is that useLekSessions is now asynchronous and no longer returns an init method. it initialises itself.
 
-`MANAGER_SECRET` should be a robust key that will be used for encrypting sessions before storing them.
+__2.0.0 ==> 2.0.1__
+Now you can push folder for sqlite database and databasename with parameters of the function.
 
 ## System Usage
 
@@ -69,11 +68,8 @@ if (confirmation) {
 }
 ```
 
-## Security Considerations
-
-- Ensure to keep `MANAGER_SECRET` secure and out of the source code.
-- Regularly perform security testing to identify and mitigate potential vulnerabilities.
-```
+### Close
+close is a method that is called to terminate the use of the system. it is not necessary on web servers, it simply clears the interval at which the encryption key is rotated.
 
 __1.0.3 ==> 2.0.0__
 Cookies generated with a previous version are no longer valid. So you cannot update the package if you are already using version 1.0.3. This is due to a new internal handling of lek-cryptools. If I see interest from someone I can create a method to migrate old cookies.
