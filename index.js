@@ -6,7 +6,7 @@ const SqliteExpress = require('sqlite-express');
  * @param {string} secretManaggerKey A key for use to cipher sessions. Must be a secret but are not critical
  * @param {string} [dirdata] The path for persist database 
  * @param {*} [dbname] The name for database 
- * @returns {object}
+ * @returns {Object}
  */
 const useLekSessions = async (secretManaggerKey, dirdata=__dirname, dbname="lek-sessions-data.db") =>
 {
@@ -82,7 +82,6 @@ const useLekSessions = async (secretManaggerKey, dirdata=__dirname, dbname="lek-
                     ({ row : { id_user, session : keyA_Encrypted, expiresBool, expiresInt } });
                 }
             };
-
             return cipher(id_user + '|' + keyB, secretManaggerKey);
         }
         catch(err)
