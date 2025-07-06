@@ -167,6 +167,15 @@ catch(err)
 }
 ```
 
+# 3.0.4
+
+New optional mode parameter added to encryption methods
+The methods cipher, cipherSync, decipher, decipherSync, cipherStream, and decipherStream now support an optional mode parameter that accepts either "cbc" or "gcm".
+
+By default, the mode is set to "cbc" to preserve backward compatibility. However, you can now explicitly choose "gcm" for authenticated encryption.
+
+This enhancement allows for stronger security using AES-GCM while maintaining support for existing AES-CBC encrypted data.
+
 ## Security Note
 
 This package uses standard cryptographic libraries, but remember that the security of your application depends on how you manage your secret keys and sensitive data. Always follow best practices for key management and never expose your secret keys.

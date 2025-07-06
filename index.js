@@ -1,135 +1,137 @@
-const { cipher, decipher, encrypt, compare, getUniqueKey} = require('lek-cryptools');
+const { cipher, decipher, encrypt, compare, getUniqueKey } = require('lek-cryptools');
 const SqliteExpress = require('sqlite-express');
 
 /**
- * 
- * @param {string} secretManaggerKey A key for use to cipher sessions. Must be a secret but are not critical
- * @param {string} [dirdata] The path for persist database 
- * @param {*} [dbname] The name for database 
- * @returns {Object}
+ * @typedef {import("./types.d.ts").UseLekSessionsFunction} UseLekSessionsFunction
+ * @typedef {import("./types.d.ts").CreateFunction} CreateFunction
+ * @typedef {import("./types.d.ts").ConfirmFunction} ConfirmFunction
+ * @typedef {import("./types.d.ts").SessionRow} SessionRow
  */
-const useLekSessions = async (secretManaggerKey, dirdata=__dirname, dbname="lek-sessions-data.db") =>
+
+/** @type {UseLekSessionsFunction} */
+const useLekSessions = (secretManaggerKey, dirdata = __dirname, dbname = "lek-sessions-data.db") =>
 {
     const dbSession = new SqliteExpress(dirdata);
 
-    dbSession.defaultOptions.set
-    ({
-        key : 'lek-sessions-data',
-        table : 'sessions',
-        route : dbname,
-        columns : { id_user: 'text', session : 'text', expiresBool : 'text', expiresInt : 'integer' },
-        logQuery : false,
-        processRows : false,
-        processColumns : false
+    dbSession.defaultOptions.set({
+        key: 'lek-sessions-data',
+        table: 'sessions',
+        route: dbname,
+        columns: {
+            id_user: 'text',
+            session: 'text',
+            expiresBool: 'text',
+            expiresInt: 'integer'
+        },
+        logQuery: false,
+        processRows: false,
+        processColumns: false
     });
 
+    /** @type {{[key:string]: {keyA_Encrypted: string; expiresBool:boolean; expiresInt: number}}} */
     const sessions = {};
 
-    const init = async() =>
+    const init = async () =>
     {
         try
         {
             dbSession.createDB();
-            await dbSession.createTable();
-            const rows = await dbSession.select();
+            /**@type {SessionRow[]}*/ //@ts-ignore
+            const rows = await dbSession.createTable().then(() => dbSession.select());
             rows.forEach(({ id_user, session, expiresBool, expiresInt }) =>
             {
-                sessions[id_user] = 
-                {
-                    keyA_Encrypted : session,
-                    expiresBool,
+                sessions[id_user] = {
+                    keyA_Encrypted: session,
+                    expiresBool: expiresBool === "true",
                     expiresInt
-                }
+                };
             });
         }
-        catch(err)
+        catch (err)
         {
             throw new Error('error in lek-sessions when trying to initialise the package: ' + err.message);
-        };
+        }
     };
 
-    await init();
-    /**
-     * this function receives an identifier from the user and returns a string to be inserted in the user's browser via a cookie
-     * @param {string} id_user a user identifier
-     * @param {number|undefined} max_age an optional parameter allowing to add a maximum age to the session. it can be a number (in seconds) or undefined.
-     * @param {boolean} [persist=true] an optional boolean if you want the session to terminate or not if the sever is restarted
-     * @returns {Promise<string>} <cookie_key>
-     */
-    const create = async (id_user, max_age, persist=true) =>
+    /** @type {CreateFunction} */
+    const create = async (id_user, max_age=365*24*60, persist = true) =>
     {
         try
         {
+            await init();
             const keyA = await getUniqueKey();
             const keyB = await encrypt(keyA);
-            const keyA_Encrypted = await cipher(keyA, secretManaggerKey);
-            const expiresBool = max_age ? true : false;
-            const thisMoment = new Date().getTime();
-            const expiresInt = max_age ? thisMoment + (max_age * 1000) : 0;
+            const keyA_Encrypted = await cipher(keyA, secretManaggerKey, "gcm");
+            const expiresBool = !!max_age;
+            const thisMoment = Date.now();
+            const expiresInt = thisMoment + (max_age * 1000);
+
             sessions[id_user] = { keyA_Encrypted, expiresBool, expiresInt };
 
-            if(persist)
+            if (persist)
             {
-                const existPrev = await dbSession.exist({ where : { id_user } });
-                if(existPrev)
+                const existPrev = await dbSession.exist({ where: { id_user } });
+                if (existPrev)
                 {
-                    await dbSession.update
-                    ({ update : { session : keyA_Encrypted, expiresBool, expiresInt }, where : { id_user } });
+                    await dbSession.update({
+                        update: { session: keyA_Encrypted, expiresBool, expiresInt },
+                        where: { id_user }
+                    });
                 }
                 else
                 {
-                    await dbSession.insert
-                    ({ row : { id_user, session : keyA_Encrypted, expiresBool, expiresInt } });
+                    await dbSession.insert({
+                        row: { id_user, session: keyA_Encrypted, expiresBool, expiresInt }
+                    });
                 }
-            };
-            return cipher(id_user + '|' + keyB, secretManaggerKey);
+            }
+
+            return cipher(id_user + '|' + keyB, secretManaggerKey, "gcm");
         }
-        catch(err)
+        catch (err)
         {
             throw new Error('error in lek-sessions when trying to create a session: ' + err.message);
         }
     };
 
-    /**
-     * Receives a cookie key (return from create) and confirms or denies a session
-     * @param {string} cookie_key a cookie key (return from create)
-     * @returns {Promise<string|false>} <confirmation>
-     */
-    const confirm = async cookie_key =>
+    /** @type {ConfirmFunction} */
+    const confirm = async (cookie_key) =>
     {
         try
         {
-            const [id_user, keyB] = (await decipher(cookie_key, secretManaggerKey)).split('|');
-            if(!id_user || !keyB) return false
-            const { keyA_Encrypted, expiresBool, expiresInt } = sessions[id_user];
+            await init();
+            const decrypted = await decipher(cookie_key, secretManaggerKey, "gcm");
+            
+            const [id_user, keyB] = decrypted.split('|');
+            if (!id_user || !keyB) return false;
 
-            if(keyA_Encrypted)
+            const sessionData = sessions[id_user];
+            if (!sessionData) return false;
+
+            const { keyA_Encrypted, expiresBool, expiresInt } = sessionData;
+            const keyA = await decipher(keyA_Encrypted, secretManaggerKey, "gcm");
+            const confirmation = await compare(keyA, keyB);
+
+            if (expiresBool)
             {
-                const keyA = await decipher(keyA_Encrypted, secretManaggerKey);
-                const confirmation = await compare(keyA, keyB);
-                if(expiresBool)
+                const thisMoment = Date.now();
+                const isExpired = thisMoment > expiresInt;
+                if (isExpired)
                 {
-                    const thisMoment = new Date().getTime();
-                    const isExpired = (thisMoment > expiresInt);
-                    if(isExpired)
-                    {
-                        delete sessions[id_user];
-                        await dbSession.delete({ where : { id_user } });
-                    }
-                    return (confirmation && !isExpired) ? id_user : false;
+                    delete sessions[id_user];
+                    await dbSession.delete({ where: { id_user } });
                 }
-                else
-                {
-                    return confirmation ? id_user : false;
-                }
+                return confirmation && !isExpired ? id_user : false;
             }
-            else return false;
+
+            return confirmation ? id_user : false;
         }
-        catch(err)
+        catch (err)
         {
             return false;
-        };
+        }
     };
+
     return { create, confirm };
 };
 

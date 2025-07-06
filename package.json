@@ -4,12 +4,12 @@
   "description": "'session system'",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node index.test.js"
   },
   "author": "'Gabriel Farías R'",
   "license": "ISC",
   "dependencies": {
-    "lek-cryptools": "^3.0.1",
+    "lek-cryptools": "^3.0.5",
     "sqlite-express": "^4.0.4"
   }
 }
