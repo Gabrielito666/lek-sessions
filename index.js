@@ -53,12 +53,14 @@ const useLekSessions = (secretManaggerKey, dirdata = __dirname, dbname = "lek-se
         }
     };
 
+    const initPromise = init();
+
     /** @type {CreateFunction} */
-    const create = async (id_user, max_age=365*24*60, persist = true) =>
+    const create = async (id_user, max_age=365*24*60, persist=true) =>
     {
         try
         {
-            await init();
+            await initPromise;
             const keyA = await getUniqueKey();
             const keyB = await encrypt(keyA);
             const keyA_Encrypted = await cipher(keyA, secretManaggerKey, "gcm");
@@ -99,9 +101,8 @@ const useLekSessions = (secretManaggerKey, dirdata = __dirname, dbname = "lek-se
     {
         try
         {
-            await init();
+            await initPromise;
             const decrypted = await decipher(cookie_key, secretManaggerKey, "gcm");
-            
             const [id_user, keyB] = decrypted.split('|');
             if (!id_user || !keyB) return false;
 

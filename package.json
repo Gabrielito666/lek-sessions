@@ -1,6 +1,6 @@
 {
   "name": "lek-sessions",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "'session system'",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "'Gabriel Farías R'",
   "license": "ISC",
   "dependencies": {
-    "lek-cryptools": "^3.0.5",
+    "lek-cryptools": "^3.0.8",
     "sqlite-express": "^4.0.4"
   }
 }
