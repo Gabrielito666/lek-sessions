@@ -9,7 +9,6 @@
   "author": "'Gabriel Farías R'",
   "license": "ISC",
   "dependencies": {
-    "lek-cryptools": "^3.0.8",
-    "sqlite-express": "^4.0.4"
+    "lek-cryptools": "^3.0.8"
   }
 }
