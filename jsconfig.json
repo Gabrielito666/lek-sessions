@@ -1,14 +1,20 @@
 {
-    "compilerOptions": {
-      "checkJs": true,
-      "baseUrl": ".",
-      "paths": {
-        "@/*": ["./*"]
-      },
-      "module": "ESNext",
-      "target": "ESNext",
-      "moduleResolution": "Node"
-    },
-    "include": ["./"],
-    "exclude": ["node_modules"]
-}  
+  "compilerOptions":
+  {
+    "checkJs": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowSuntethicDefaultImports": true,
+    "target": "ES2020",
+
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "strict": true,
+    "paths" : {
+    	"#lib/*" : ["./lib/*"]
+    }
+  },
+  "include": ["**/*.js", "**/*.d.ts"]
+}

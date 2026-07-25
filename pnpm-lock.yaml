@@ -1,0 +1,29 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      lek-cryptools:
+        specifier: ^3.0.8
+        version: 3.0.8
+
+packages:
+
+  bcryptjs@2.4.3:
+    resolution: {integrity: sha512-V/Hy/X9Vt7f3BbPJEi8BdVFMByHi+jNXrYkW3huaybV/kQ0KJg0Y6PkEMbn+zeT+i+SiKZ/HMqJGIIt4LZDqNQ==}
+
+  lek-cryptools@3.0.8:
+    resolution: {integrity: sha512-qSPNJQirA4NOsQBf6+FNV07mjBgAM5uxdDODES4ftf3UtTu6dJIjAHvc35rkR+5DqPl1z4GIpgCP2K15uKw39g==}
+
+snapshots:
+
+  bcryptjs@2.4.3: {}
+
+  lek-cryptools@3.0.8:
+    dependencies:
+      bcryptjs: 2.4.3
