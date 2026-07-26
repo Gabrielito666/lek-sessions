@@ -3,13 +3,13 @@
   "version": "2.0.3",
   "description": "'session system'",
   "imports": {
-	"#lib/*": "./lib/*"
+	"#lib/*": "./lib/*/index.js"
   },
   "exports": {
 	"require": "./lib/lek-sessions/index.js"
   },
   "scripts": {
-    "test": "node index.test.js"
+    "test": "node --test test/**/index.test.js"
   },
   "author": "'Gabriel Farías R'",
   "license": "ISC",
