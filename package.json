@@ -2,9 +2,11 @@
   "name": "lek-sessions",
   "version": "2.0.3",
   "description": "'session system'",
-  "main": "index.js",
   "imports": {
 	"#lib/*": "./lib/*"
+  },
+  "exports": {
+	"require": "./lib/lek-sessions/index.js"
   },
   "scripts": {
     "test": "node index.test.js"

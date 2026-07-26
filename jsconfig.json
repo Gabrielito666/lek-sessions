@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "allowSuntethicDefaultImports": true,
+    "allowSyntethicDefaultImports": true,
     "target": "ES2020",
 
     "baseUrl": ".",
