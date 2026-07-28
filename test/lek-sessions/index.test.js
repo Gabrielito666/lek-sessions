@@ -136,13 +136,13 @@ describe('confirm', () =>
 	});
 });
 
-describe('refreshSession', () =>
+describe('refresh', () =>
 {
 	it('valid refresh token returns new tokens', async() =>
 	{
 		const lek = createLek();
 		const { refresh_token } = await lek.create('user-1', { metadata: undefined });
-		const result = await lek.refreshSession(refresh_token);
+		const result = await lek.refresh(refresh_token);
 		assert.equal(result.success, true);
 		assert.equal(typeof result.access_token, 'string');
 		assert.equal(typeof result.refresh_token, 'string');
@@ -153,7 +153,7 @@ describe('refreshSession', () =>
 	{
 		const lek = createLek();
 		const old = await lek.create('user-1', { metadata: undefined });
-		const result = await lek.refreshSession(old.refresh_token);
+		const result = await lek.refresh(old.refresh_token);
 		assert.notEqual(result.access_token, old.access_token);
 		assert.notEqual(result.refresh_token, old.refresh_token);
 	});
@@ -162,8 +162,8 @@ describe('refreshSession', () =>
 	{
 		const lek = createLek();
 		const old = await lek.create('user-1', { metadata: undefined });
-		await lek.refreshSession(old.refresh_token);
-		const result = await lek.refreshSession(old.refresh_token);
+		await lek.refresh(old.refresh_token);
+		const result = await lek.refresh(old.refresh_token);
 		assert.equal(result.success, false);
 		assert.equal(result.error_type, 'invalid-token');
 	});
@@ -171,7 +171,7 @@ describe('refreshSession', () =>
 	it('invalid refresh token returns invalid-token', async() =>
 	{
 		const lek = createLek();
-		const result = await lek.refreshSession('not-a-valid-token');
+		const result = await lek.refresh('not-a-valid-token');
 		assert.equal(result.success, false);
 		assert.equal(result.error_type, 'invalid-token');
 	});
@@ -181,7 +181,7 @@ describe('refreshSession', () =>
 		const lek = createLek();
 		const { refresh_token, access_token } = await lek.create('user-1', { metadata: undefined, refresh_max_age: 1 });
 		await wait(1500);
-		const result = await lek.refreshSession(refresh_token);
+		const result = await lek.refresh(refresh_token);
 		assert.equal(result.success, false);
 		assert.equal(result.error_type, 'refresh-expires');
 		const confirm = await lek.confirm(access_token);
@@ -194,7 +194,7 @@ describe('refreshSession', () =>
 		const lek = createLek();
 		const { refresh_token, access_token } = await lek.create('user-1', { metadata: undefined });
 		await lek.revoke(access_token);
-		const result = await lek.refreshSession(refresh_token);
+		const result = await lek.refresh(refresh_token);
 		assert.equal(result.success, false);
 		assert.equal(result.error_type, 'revoked');
 	});
@@ -204,7 +204,7 @@ describe('refreshSession', () =>
 		const lek = createLek();
 		const meta = { role: 'admin' };
 		const { refresh_token } = await lek.create('user-1', { metadata: meta });
-		const refreshed = await lek.refreshSession(refresh_token);
+		const refreshed = await lek.refresh(refresh_token);
 		const confirm = await lek.confirm(refreshed.access_token);
 		assert.equal(confirm.success, true);
 		assert.deepEqual(confirm.metadata, meta);
@@ -214,7 +214,7 @@ describe('refreshSession', () =>
 	{
 		const lek = createLek();
 		const { refresh_token } = await lek.create('user-1', { metadata: undefined, access_max_age: 60, refresh_max_age: 120 });
-		const refreshed = await lek.refreshSession(refresh_token);
+		const refreshed = await lek.refresh(refresh_token);
 		const ms_until_expiry = refreshed.expires_access_token_at.getTime() - Date.now();
 		assert.ok(ms_until_expiry > 50000 && ms_until_expiry < 70000);
 	});
@@ -237,7 +237,7 @@ describe('revoke', () =>
 		const lek = createLek();
 		const { access_token, refresh_token } = await lek.create('user-1', { metadata: undefined });
 		await lek.revoke(access_token);
-		const result = await lek.refreshSession(refresh_token);
+		const result = await lek.refresh(refresh_token);
 		assert.equal(result.success, false);
 		assert.equal(result.error_type, 'revoked');
 	});
