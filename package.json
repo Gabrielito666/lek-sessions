@@ -1,6 +1,6 @@
 {
   "name": "lek-sessions",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Session management with token rotation and interchangeable storage",
   "keywords": [
     "session",
@@ -33,13 +33,23 @@
     "#lib/*": "./lib/*/index.js"
   },
   "exports": {
-    ".": { "require": "./lib/lek-sessions/index.js" },
-    "./memory-storage": { "require": "./lib/memory-storage/index.js" }
+    ".": {
+      "require": "./lib/lek-sessions/index.js"
+    },
+    "./memory-storage": {
+      "require": "./lib/memory-storage/index.js"
+    },
+    "./express": {
+      "require": "./lib/express/index.js"
+    }
   },
   "scripts": {
     "test": "node --test test/**/index.test.js"
   },
   "dependencies": {
     "lek-cryptools": "^3.0.8"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6"
   }
 }

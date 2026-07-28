@@ -424,6 +424,12 @@ This package will be published independently and will allow using `lek-sessions`
 
 ---
 
+## Express Adapter
+
+`lek-sessions` includes an optional Express wrapper that handles cookies automatically. See [`EXPRESS_ADAPTER.md`](./EXPRESS_ADAPTER.md) for full documentation.
+
+---
+
 ## License
 
 ISC
