@@ -6,7 +6,8 @@
 	"#lib/*": "./lib/*/index.js"
   },
   "exports": {
-	"require": "./lib/lek-sessions/index.js"
+	".": { "require": "./lib/lek-sessions/index.js" },
+	"./memory-storage": { require: "./lib/memory-storage/index.js" }
   },
   "scripts": {
     "test": "node --test test/**/index.test.js"
