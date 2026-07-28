@@ -1,19 +1,44 @@
 {
   "name": "lek-sessions",
-  "version": "2.0.3",
-  "description": "'session system'",
+  "version": "3.0.0",
+  "description": "Session management with token rotation and interchangeable storage",
+  "keywords": [
+    "session",
+    "sessions",
+    "token",
+    "refresh-token",
+    "authentication",
+    "auth",
+    "storage",
+    "memory-storage",
+    "lek"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gabrielito666/lek-sessions.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Gabrielito666/lek-sessions/issues"
+  },
+  "homepage": "https://github.com/Gabrielito666/lek-sessions#readme",
+  "author": "Gabriel Farías R",
+  "license": "ISC",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "lib/"
+  ],
   "imports": {
-	"#lib/*": "./lib/*/index.js"
+    "#lib/*": "./lib/*/index.js"
   },
   "exports": {
-	".": { "require": "./lib/lek-sessions/index.js" },
-	"./memory-storage": { "require": "./lib/memory-storage/index.js" }
+    ".": { "require": "./lib/lek-sessions/index.js" },
+    "./memory-storage": { "require": "./lib/memory-storage/index.js" }
   },
   "scripts": {
     "test": "node --test test/**/index.test.js"
   },
-  "author": "'Gabriel Farías R'",
-  "license": "ISC",
   "dependencies": {
     "lek-cryptools": "^3.0.8"
   }
