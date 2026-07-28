@@ -1,4 +1,4 @@
-# LEK-SESSIONS v3.0.0
+# LEK-SESSIONS v3.0.1
 
 Sistema de sesiones con rotación de tokens y almacenamiento intercambiable para Node.js.
 
@@ -16,7 +16,7 @@ El esquema criptográfico funciona de la siguiente manera:
 - El hash viaja dentro del token cifrado con AES-GCM.
 - Para confirmar, se descifra el token, se obtiene el hash, y se compara contra la llave privada almacenada usando `bcrypt.compare`.
 
-**Versión 3.0.0** introduce un contrato `IStorage` que permite inyectar cualquier backend de almacenamiento (memoria, SQLite, Redis, PostgreSQL, archivo, etc.) sin modificar el núcleo de la librería.
+**Versión 3.0.1** introduce un contrato `IStorage` que permite inyectar cualquier backend de almacenamiento (memoria, SQLite, Redis, PostgreSQL, archivo, etc.) sin modificar el núcleo de la librería.
 
 ---
 
@@ -416,11 +416,24 @@ Los métodos `confirm` y `refresh` devuelven un objeto con `success: false` y un
 
 ---
 
-## Próximamente: `lek-sessions-sqlite-bun`
+## `lek-sessions-storage-sqlite-bun`
 
-Se está desarrollando un paquete separado que implementa `IStorage` con SQLite, optimizado para el runtime Bun.
+Existe un paquete separado que implementa `IStorage` con SQLite, optimizado para el runtime Bun: [`lek-sessions-storage-sqlite-bun`](https://github.com/Gabrielito666/lek-sessions-storage-sqlite-bun).
 
-Este paquete se publicará de forma independiente y permitirá usar `lek-sessions` con almacenamiento persistente sin necesidad de configurar una base de datos externa.
+```bash
+npm install lek-sessions-storage-sqlite-bun
+```
+
+```javascript
+const LekSessions = require("lek-sessions");
+const SqliteStorage = require("lek-sessions-storage-sqlite-bun");
+
+const sessions = new LekSessions("clave-secreta", {
+	storage: new SqliteStorage("./sessions.db"),
+});
+```
+
+Este paquete provee almacenamiento persistente sin necesidad de configurar una base de datos externa.
 
 ---
 
