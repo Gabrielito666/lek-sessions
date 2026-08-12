@@ -6,6 +6,7 @@
 
 const { describe, it, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
+const LekSessions = require('#lib/lek-sessions');
 const LekSessionsExpress = require('#lib/express');
 
 // ── Helpers ──────────────────────────────────────────────
@@ -98,6 +99,21 @@ const createMockRes = () =>
 const createMockReq = (cookieString) =>
 {
 	return { headers: { cookie: cookieString } };
+};
+
+const MockStorage = class
+{
+	#map = new Map();
+	get(id) { return this.#map.get(id); }
+	set(id, session) { this.#map.set(id, session); }
+	delete(id) { this.#map.delete(id); }
+	revoke(id)
+	{
+		const session = this.#map.get(id);
+		if(!session) return;
+		session.revoked = true;
+	}
+	close() {}
 };
 
 // ── Constructor ──────────────────────────────────────────
@@ -342,6 +358,20 @@ describe('express-create', () =>
 		const result = await wrapper.create(res, 'user-1', { metadata: {} });
 
 		assert.equal(result, lek.createResult);
+	});
+
+	it('express-creates session without options when metadata is not typed', async() =>
+	{
+		const lek = new LekSessions('test-secret', { storage: new MockStorage() });
+		const wrapper = new LekSessionsExpress(lek);
+		const res = createMockRes();
+
+		const result = await wrapper.create(res, 'user-1');
+
+		assert.equal(typeof result.access_token, 'string');
+		assert.equal(typeof result.refresh_token, 'string');
+		assert.ok(result.expires_access_token_at instanceof Date);
+		assert.equal(res.cookies.length, 2);
 	});
 });
 

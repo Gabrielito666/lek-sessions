@@ -1,6 +1,6 @@
 {
   "name": "lek-sessions",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Session management with token rotation and interchangeable storage",
   "keywords": [
     "session",

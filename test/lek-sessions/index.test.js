@@ -74,6 +74,16 @@ describe('create', () =>
 		const ms_until_expiry = result.expires_access_token_at.getTime() - Date.now();
 		assert.ok(ms_until_expiry > 50000 && ms_until_expiry < 70000);
 	});
+
+	it('creates session without options when metadata is not typed', async() =>
+	{
+		const lek = new LekSessions(SECRET, { storage: new MockStorage() });
+		const result = await lek.create('user-1');
+
+		assert.equal(typeof result.access_token, 'string');
+		assert.equal(typeof result.refresh_token, 'string');
+		assert.ok(result.expires_access_token_at instanceof Date);
+	});
 });
 
 describe('confirm', () =>
